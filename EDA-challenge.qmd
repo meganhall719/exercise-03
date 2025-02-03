@@ -1,0 +1,150 @@
+---
+title: "EDA-challenge.qmd"
+format: html
+editor: visual
+---
+
+### Body Size dimorphism (BSD)
+
+Creating a new variable which is the ratio of average male to female body mass
+
+```{r}
+d$BSD <- d$Body_mass_male_mean/d$Body_mass_female_mean
+d$BSD
+```
+
+### Sex_Ratio
+
+creating a new variable sex ratio, which is the ratio of the number of adult females to adult males in a typical group.
+
+```{r}
+d$sex_ratio<-d$AdultFemale/d$AdultMales
+d$sex_ratio
+```
+
+### Defensibility Index DI
+
+ratio of day range length to the diameter of the home range
+
+```{r}
+radius<-sqrt(d$HomeRange_km2/pi)
+diameter<-2*radius
+d$DI<-d$DayLength_km/diameter
+d$DI
+```
+
+### 4. Plotting the relationship between day range length (y- axis) and time spent moving (x-axis)
+
+#### Family
+
+```{r}
+library(skimr)
+library(kableExtra)
+f<-"https://raw.githubusercontent.com/difiore/ada-datasets/main/data-wrangling.csv"
+d <- read.table(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+p <- ggplot(data = d, aes(x = log(Move), y = log(DayLength_km), 
+                          color = factor(Family)))
+p <- p + xlab("log(Time Spent Moving)") + ylab("log(Day Range Length)")
+p <- p + geom_point(na.rm = TRUE)
+p <- p + theme(legend.position = "bottom", legend.title = element_blank())
+p <- p + facet_wrap(~Family, ncol = 4)
+p <- p + theme(legend.position = "none")
+p
+```
+
+#### Overall
+
+```{r}
+library(skimr)
+library(kableExtra)
+f<-"https://raw.githubusercontent.com/difiore/ada-datasets/main/data-wrangling.csv"
+d <- read.table(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+p <- ggplot(data = d, aes(x = log(Move), y = log(DayLength_km), 
+                          color = factor(Species)))
+p <- p + xlab("log(Time Spent Moving)") + ylab("log(Day Range Length)")
+p <- p + geom_point(na.rm = TRUE)
+p <- p + theme(legend.position = "bottom", legend.title = element_blank())
+p
+```
+
+### 5. Plot the Relationship between Day Range Length (y axis) and group size (x axis)
+
+#### Overall
+
+```{r}
+ggplot(d, aes(x = MeanGroupSize, y = DayLength_km))+
+geom_point()+
+geom_smooth(method = "lm", se = FALSE, color = "blue")+
+labs(x = "Group Size", y = "Day Range Length (km)")+
+ theme_minimal()
+```
+
+#### Family
+
+```{r}
+ggplot(d, aes(x = MeanGroupSize, y = DayLength_km))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "pink")+
+  labs(x = "Group Size", y = "Day Range Length (km)")+
+  theme_minimal()+
+  facet_wrap(~Family, scales = "free")
+```
+
+### 6. Plot the relationship between canine size dimorphism and body size dimorphism
+
+#### family
+
+```{r}
+d$BSD <- d$Body_mass_male_mean / d$Body_mass_female_mean
+d <- d[!is.infinite(d$BSD) & !is.na(d$BSD),]
+
+ggplot(d, aes(x = BSD, y = Canine_Dimorphism))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "purple")+
+  labs(x= "Body Size Dimorphism", y = "Canine Size Dimorphism")+
+  theme_minimal()+
+  facet_wrap(~Family, scales = "free")
+```
+
+#### Overall
+
+```{r}
+ggplot(d, aes(x = BSD, y = Canine_Dimorphism))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "purple")+
+  labs(x= "Body Size Dimorphism", y = "Canine Size Dimorphism")+
+  theme_minimal()
+```
+
+### Diet_Strategy Variable
+
+```{r}
+library(dplyr)
+d <- d %>%
+  mutate(diet_strategy = case_when (
+    Fruit >= 50 ~ "frugivore",
+    Leaves >=50 ~ "folivore",
+    Fruit < 50 & Leaves < 50 ~"omnivore",
+    TRUE ~ NA_character_
+  ))
+ggplot(d %>% filter(!is.na(diet_strategy)), aes(x=diet_strategy, y = Species))+
+  geom_boxplot()+ 
+  labs(x="Diet Strategy", y = "Species")+ 
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+### 8.
+library(dplyr)
+```{r}
+d %>%
+  mutate(Binomial = paste(Genus, Species)) %>%
+  select(Binomial, Family, Brain_Size_Species_Mean, Body_mass_male_mean) %>%
+  summarise(
+    avg_brain_size = mean(Brain_Size_Species_Mean, na.rm = TRUE),
+    avg_body_mass = mean(Body_mass_male_mean, na.rm = TRUE) 
+  ) %>%
+  arrange(avg_brain_size) %>%
+  print()
+```
+
