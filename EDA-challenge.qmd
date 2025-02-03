@@ -52,20 +52,34 @@ p <- p + theme(legend.position = "none")
 p
 ```
 
+```{r}
+ggplot(d, aes(x= Move, y = DayLength_km))+
+  geom_point()+
+  geom_smooth(mmethod = "lm", se = FALSE, color = "black")+
+  labs(x="Time spent Moving", y = "Day Range Length")+
+  theme_minimal()+
+  facet_wrap(~Family, scales = "free")
+```
+
 #### Overall
 
 ```{r}
 library(skimr)
 library(kableExtra)
 f<-"https://raw.githubusercontent.com/difiore/ada-datasets/main/data-wrangling.csv"
-d <- read.table(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-p <- ggplot(data = d, aes(x = log(Move), y = log(DayLength_km), 
-                          color = factor(Species)))
-p <- p + xlab("log(Time Spent Moving)") + ylab("log(Day Range Length)")
-p <- p + geom_point(na.rm = TRUE)
-p <- p + theme(legend.position = "bottom", legend.title = element_blank())
-p
 ```
+
+```{r}
+ggplot(d, aes(x= Move, y = DayLength_km))+
+  geom_point()+
+  geom_smooth(mmethod = "lm", se = FALSE, color = "black")+
+  labs(x="Time spent Moving", y = "Day Range Length")+
+  theme_minimal()
+```
+
+##### questions
+
+1.) Species that spend more time mvoing do not travel farther overall 2.) withing a particular primate family cebidae seem to move alot but don't travel a great distance
 
 ### 5. Plot the Relationship between Day Range Length (y axis) and group size (x axis)
 
@@ -90,7 +104,9 @@ ggplot(d, aes(x = MeanGroupSize, y = DayLength_km))+
   facet_wrap(~Family, scales = "free")
 ```
 
-### 6. Plot the relationship between canine size dimorphism and body size dimorphism
+###### Questions
+
+1.) Species that live in larger groups do travel father overall. 2.) looks like the hominidae trravel far the greater the group size. \### 6. Plot the relationship between canine size dimorphism and body size dimorphism
 
 #### family
 
@@ -109,6 +125,9 @@ ggplot(d, aes(x = BSD, y = Canine_Dimorphism))+
 #### Overall
 
 ```{r}
+d$BSD <- d$Body_mass_male_mean / d$Body_mass_female_mean
+d <- d[!is.infinite(d$BSD) & !is.na(d$BSD),]
+
 ggplot(d, aes(x = BSD, y = Canine_Dimorphism))+
   geom_point()+
   geom_smooth(method = "lm", se = FALSE, color = "purple")+
@@ -116,7 +135,11 @@ ggplot(d, aes(x = BSD, y = Canine_Dimorphism))+
   theme_minimal()
 ```
 
-### Diet_Strategy Variable
+##### Questions
+
+1.) it does look like the greater the body size the greater the canine size (I do not understand "transform these variables"
+
+### 7. Diet_Strategy Variable
 
 ```{r}
 library(dplyr)
@@ -134,8 +157,14 @@ ggplot(d %>% filter(!is.na(diet_strategy)), aes(x=diet_strategy, y = Species))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
+##### Questions
+
+1.) Yes? How can you tell the group size based on diet strategy and species?
+
 ### 8.
+
 library(dplyr)
+
 ```{r}
 d %>%
   mutate(Binomial = paste(Genus, Species)) %>%
@@ -147,4 +176,3 @@ d %>%
   arrange(avg_brain_size) %>%
   print()
 ```
-
