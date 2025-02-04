@@ -149,17 +149,17 @@ d <- d %>%
     Leaves >=50 ~ "folivore",
     Fruit < 50 & Leaves < 50 ~"omnivore",
     TRUE ~ NA_character_
-  ))
-ggplot(d %>% filter(!is.na(diet_strategy)), aes(x=diet_strategy, y = Species))+
+  )) 
+ggplot(d %>% filter(!is.na(diet_strategy)), aes(x=diet_strategy, y = MeanGroupSize))+
   geom_boxplot()+ 
-  labs(x="Diet Strategy", y = "Species")+ 
+  labs(x="Diet Strategy", y = "Group Size")+ 
   theme_minimal()+ 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
 ##### Questions
 
-1.) Yes? How can you tell the group size based on diet strategy and species?
+1.) Yes Fugiovre do live in bigger size than folivore 
 
 ### 8.
 
